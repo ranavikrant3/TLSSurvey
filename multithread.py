@@ -45,7 +45,7 @@ def scan_runner(seq,host):
     # Then queue some scan commands for each server
     for server_info in servers_to_scan:
         server_scan_req = ServerScanRequest(
-            server_info=server_info, scan_commands={ScanCommand.TLS_1_3_CIPHER_SUITES},
+            server_info=server_info, scan_commands={ScanCommand.TLS_1_3_CIPHER_SUITES,ScanCommand.TLS_1_2_CIPHER_SUITES,ScanCommand.TLS_1_1_CIPHER_SUITES,ScanCommand.TLS_1_0_CIPHER_SUITES},
         )
         scanner.queue_scan(server_scan_req)
 
@@ -53,8 +53,32 @@ def scan_runner(seq,host):
     for server_scan_result in scanner.get_results():
         try:
             tls1_3_result = server_scan_result.scan_commands_results[ScanCommand.TLS_1_3_CIPHER_SUITES]
+            cipherstr=""
             if tls1_3_result.accepted_cipher_suites:
-                r.hset(seq,"TLS1_3","True")
+                for accepted_cipher_suite in tls1_3_result.accepted_cipher_suites:
+                    cipherstr=cipherstr+str(accepted_cipher_suite.cipher_suite.name)+" "
+                r.hset(seq,"TLS1_3",cipherstr)
+
+            tls1_2_result = server_scan_result.scan_commands_results[ScanCommand.TLS_1_2_CIPHER_SUITES]
+            cipherstr=""
+            if tls1_2_result.accepted_cipher_suites:
+                for accepted_cipher_suite in tls1_2_result.accepted_cipher_suites:
+                    cipherstr=cipherstr+str(accepted_cipher_suite.cipher_suite.name)+" "
+                r.hset(seq,"TLS1_2",cipherstr)
+
+            tls1_1_result = server_scan_result.scan_commands_results[ScanCommand.TLS_1_1_CIPHER_SUITES]
+            cipherstr=""
+            if tls1_1_result.accepted_cipher_suites:
+                for accepted_cipher_suite in tls1_1_result.accepted_cipher_suites:
+                    cipherstr=cipherstr+str(accepted_cipher_suite.cipher_suite.name)+" "
+                r.hset(seq,"TLS1_1",cipherstr)
+
+            tls1_0_result = server_scan_result.scan_commands_results[ScanCommand.TLS_1_0_CIPHER_SUITES]
+            cipherstr=""
+            if tls1_0_result.accepted_cipher_suites:
+                for accepted_cipher_suite in tls1_0_result.accepted_cipher_suites:
+                    cipherstr=cipherstr+str(accepted_cipher_suite.cipher_suite.name)+" "
+                r.hset(seq,"TLS1_0",cipherstr)
             r.hset(seq,"STATUS",1)
             
         except KeyError:
@@ -69,7 +93,7 @@ def scan_runner(seq,host):
 if __name__ == "__main__":
     i=1
     workers=1000
-    while i<=100000:
+    while i<=1000000:
         sequences=[]
         for j in range(i,i+workers):
             sequences.append(j)
