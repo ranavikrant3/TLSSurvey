@@ -14,7 +14,7 @@ r=redis.Redis(host='127.0.0.1',port='6379')
 def runsslyze(seq):
     hostname=r.hget(seq,"hostname")
     status=r.hget(seq,"STATUS")
-    if str(status)=='0' or not status:
+    if str(status)!='1':
         scan_runner(seq,hostname)
     return
 
@@ -24,11 +24,8 @@ def scan_runner(seq,host):
     servers_to_scan = []
     server_location = None
     try:
-        if r.hget(seq,"ipaddr"):
-            server_location = ServerNetworkLocationViaDirectConnection(hostname, 443, r.hget(seq,"ipaddr").decode("utf-8"))
-        else:
-            server_location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(hostname, 443)
-            r.hset(seq,"ipaddr",server_location.ip_address)
+        server_location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(hostname, 443)
+        r.hset(seq,"ipaddr",server_location.ip_address)
         #Initialize with hostname, port int and ip address str 
         #print(server_location)
     except Exception as e:
