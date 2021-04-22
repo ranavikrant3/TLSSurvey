@@ -14,7 +14,7 @@ r=redis.Redis(host='127.0.0.1',port='6379')
 def runsslyze(seq):
     hostname=r.hget(seq,"hostname")
     status=r.hget(seq,"STATUS")
-    if str(status)=='0' or not status:
+    if status.decode("utf-8")=='0' or not status:
         scan_runner(seq,hostname)
     return
 
@@ -38,7 +38,10 @@ def scan_runner(seq,host):
         server_info = ServerConnectivityTester().perform(server_location)
         servers_to_scan.append(server_info)
     except ConnectionToServerFailed as e:
-        r.hset(seq,"STATUS",3)
+        if 'Probing failed' in str(e):
+            r.hset(seq,"STATUS",31)
+        else:
+            r.hset(seq,"STATUS",32)
         return
 
     scanner = Scanner()
