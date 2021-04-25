@@ -23,6 +23,10 @@ with open("redis.csv", 'w') as rediscsv:
             x.append(r.hget(i,"TLS1_3").decode("utf-8"))
         else:
             x.append('')
+        if r.hget(i,"early"):
+            x.append('True')
+        else:
+            x.append('')
         if r.hget(i,"TLS1_2"):
             x.append(r.hget(i,"TLS1_2").decode("utf-8"))
         else:
@@ -33,6 +37,10 @@ with open("redis.csv", 'w') as rediscsv:
             x.append('')
         if r.hget(i,"TLS1_0"):
             x.append(r.hget(i,"TLS1_0").decode("utf-8"))
+        else:
+            x.append('')
+        if r.hget(i,"Country"):
+            x.append(r.hget(i,"Country").decode("utf-8"))
         else:
             x.append('')
 
